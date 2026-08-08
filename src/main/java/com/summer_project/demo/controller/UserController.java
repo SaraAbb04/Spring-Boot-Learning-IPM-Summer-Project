@@ -1,5 +1,6 @@
 package com.summer_project.demo.controller;
 
+import com.summer_project.demo.dto.LoginRequest;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,5 +18,9 @@ public class UserController {
     @PostMapping("/register")
     public User register(@RequestBody User user){
         return userService.register(user);
+    }
+    @PostMapping("/login")
+    public User Login(@RequestBody LoginRequest request){
+        return userService.Login(request.getEmail(), request.getPassword());
     }
 }

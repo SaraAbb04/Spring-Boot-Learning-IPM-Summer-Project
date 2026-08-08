@@ -13,4 +13,11 @@ public class UserService {
     public User register(User user){
         return (userRepository.save(user));
     }
+    public User Login(String email, String password){
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("Invalid password"));
+        if(!user.getPassword().equals(password)){
+            throw new RuntimeException("Invalid password");
+        }
+        return user;
+    }
 }
