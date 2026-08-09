@@ -5,10 +5,7 @@ import com.summer_project.demo.dto.LoginResponse;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.JwtService;
 import com.summer_project.demo.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -28,5 +25,9 @@ public class UserController {
         User user = userService.Login(request.getEmail(), request.getPassword());
         String token = jwtService.generateToken(user.getEmail(), user.getRole());
         return new LoginResponse(token, user.getEmail(), user.getRole());
+    }
+    @GetMapping("/profile")
+    public String profile() {
+        return "You are authenticated!";
     }
 }
