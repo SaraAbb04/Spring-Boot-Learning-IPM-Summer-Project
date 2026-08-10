@@ -2,6 +2,7 @@ package com.summer_project.demo.controller;
 
 import com.summer_project.demo.dto.LoginRequest;
 import com.summer_project.demo.dto.LoginResponse;
+import com.summer_project.demo.dto.UpdateProfileRequest;
 import com.summer_project.demo.dto.UserResponse;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.JwtService;
@@ -34,5 +35,10 @@ public class UserController {
         User user = userService.getProfile(email);
         return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
-
+    @PutMapping("/profile")
+    public UserResponse updateProfile(Authentication authentication, @RequestBody UpdateProfileRequest request){
+        String currentEmail = authentication.getName();
+        User user = userService.updateProfile(currentEmail, request);
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
 }

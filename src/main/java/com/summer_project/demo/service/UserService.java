@@ -1,5 +1,6 @@
 package com.summer_project.demo.service;
 
+import com.summer_project.demo.dto.UpdateProfileRequest;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,5 +29,12 @@ public class UserService {
     }
     public User getProfile(String email){
         return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User Not Found!"));
+    }
+
+    public User updateProfile(String currentEmail, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(currentEmail).orElseThrow(() -> new RuntimeException("User Not Found!"));
+        user.setUsername(request.getUserName());
+        user.setEmail(request.getEmail());
+        return userRepository.save(user);
     }
 }
