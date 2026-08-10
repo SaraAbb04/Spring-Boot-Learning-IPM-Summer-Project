@@ -26,4 +26,7 @@ public class UserService {
         }
         return user;
     }
+    public User getProfile(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User Not Found!"));
+    }
 }

@@ -2,9 +2,11 @@ package com.summer_project.demo.controller;
 
 import com.summer_project.demo.dto.LoginRequest;
 import com.summer_project.demo.dto.LoginResponse;
+import com.summer_project.demo.dto.UserResponse;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.JwtService;
 import com.summer_project.demo.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +29,10 @@ public class UserController {
         return new LoginResponse(token, user.getEmail(), user.getRole());
     }
     @GetMapping("/profile")
-    public String profile() {
-        return "You are authenticated!";
+    public UserResponse profile(Authentication authentication){
+        String email = authentication.getName();
+        User user = userService.getProfile(email);
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
+
 }
