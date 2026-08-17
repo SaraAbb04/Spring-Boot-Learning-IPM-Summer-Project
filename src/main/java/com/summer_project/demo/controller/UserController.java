@@ -1,12 +1,10 @@
 package com.summer_project.demo.controller;
 
-import com.summer_project.demo.dto.LoginRequest;
-import com.summer_project.demo.dto.LoginResponse;
-import com.summer_project.demo.dto.UpdateProfileRequest;
-import com.summer_project.demo.dto.UserResponse;
+import com.summer_project.demo.dto.*;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.JwtService;
 import com.summer_project.demo.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,5 +38,10 @@ public class UserController {
         String currentEmail = authentication.getName();
         User user = userService.updateProfile(currentEmail, request);
         return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
+    @PutMapping("/password")
+    public ResponseEntity<String> changePassword(Authentication authentication, @RequestBody ChangePasswordRequest request){
+        userService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok("Password Changed Successfully!");
     }
 }

@@ -1,5 +1,6 @@
 package com.summer_project.demo.service;
 
+import com.summer_project.demo.dto.ChangePasswordRequest;
 import com.summer_project.demo.dto.UpdateProfileRequest;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.UserRepository;
@@ -36,5 +37,13 @@ public class UserService {
         user.setUsername(request.getUserName());
         user.setEmail(request.getEmail());
         return userRepository.save(user);
+    }
+    public void changePassword(String email, ChangePasswordRequest request){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User Not Found!"));
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+            throw new RuntimeException("Current Password is Incorrect!");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }
