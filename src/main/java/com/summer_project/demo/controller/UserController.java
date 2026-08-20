@@ -4,6 +4,7 @@ import com.summer_project.demo.dto.*;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.JwtService;
 import com.summer_project.demo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class UserController {
         this.jwtService = jwtService;
     }
     @PostMapping("/register")
-    public UserResponse register(@RequestBody User user){
+    public UserResponse register(@Valid @RequestBody User user){
         User savedUser = userService.register(user);
         return new UserResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole());
     }
