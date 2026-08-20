@@ -18,8 +18,9 @@ public class UserController {
         this.jwtService = jwtService;
     }
     @PostMapping("/register")
-    public User register(@RequestBody User user){
-        return userService.register(user);
+    public UserResponse register(@RequestBody User user){
+        User savedUser = userService.register(user);
+        return new UserResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole());
     }
     @PostMapping("/login")
     public LoginResponse Login(@RequestBody LoginRequest request){
