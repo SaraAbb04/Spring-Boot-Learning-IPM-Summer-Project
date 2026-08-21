@@ -27,7 +27,7 @@ public class UserController {
     }
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public LoginResponse Login(@RequestBody LoginRequest request){
+    public LoginResponse Login(@Valid @RequestBody LoginRequest request){
         User user = userService.Login(request.getEmail(), request.getPassword());
         String token = jwtService.generateToken(user.getEmail(), user.getRole());
         return new LoginResponse(token, user.getEmail(), user.getRole());
@@ -41,14 +41,14 @@ public class UserController {
     }
     @PutMapping("/profile")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponse updateProfile(Authentication authentication, @RequestBody UpdateProfileRequest request){
+    public UserResponse updateProfile(Authentication authentication, @Valid @RequestBody UpdateProfileRequest request){
         String currentEmail = authentication.getName();
         User user = userService.updateProfile(currentEmail, request);
         return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
     @PutMapping("/password")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> changePassword(Authentication authentication, @RequestBody ChangePasswordRequest request){
+    public ResponseEntity<String> changePassword(Authentication authentication, @Valid @RequestBody ChangePasswordRequest request){
         userService.changePassword(authentication.getName(), request);
         return ResponseEntity.ok("Password Changed Successfully!");
     }

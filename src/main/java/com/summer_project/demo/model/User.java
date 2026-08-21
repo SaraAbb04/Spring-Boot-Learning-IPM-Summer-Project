@@ -10,15 +10,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
     @Id
     private String id;
-    @NotBlank(message = "Username can't be Empty!")
+    @NotBlank(message = "Username can't be empty!")
     private String username;
-    @NotBlank(message = "Email can't be Empty!")
-    @Email(message = "Email format is Invalid")
+    @NotBlank(message = "Email can't be empty!")
+    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$")
     private String email;
-    @NotBlank(message = "Password can't be Empty!")
-    @Size(min = 4, message = "Password's Length must be more than 4")
+    @NotBlank(message = "Password can't be empty!")
+    @Size(min = 4, max = 16, message = "min of password is 4 and max of it is 16")
     private String password;
-
     private String role;
     public User(){}
     public User(String username, String email, String password, String role){
