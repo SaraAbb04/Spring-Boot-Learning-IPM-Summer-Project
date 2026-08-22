@@ -1,5 +1,6 @@
 package com.summer_project.demo.config;
 
+import com.summer_project.demo.security.Authority;
 import com.summer_project.demo.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,9 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String email = jwtService.extractEmail(token);
         String role = jwtService.extractRole(token);
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        Authority authority = new Authority("ROLE_" + role);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }
 

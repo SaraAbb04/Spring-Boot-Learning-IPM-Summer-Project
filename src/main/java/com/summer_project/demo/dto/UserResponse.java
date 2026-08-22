@@ -1,14 +1,16 @@
 package com.summer_project.demo.dto;
 
+import com.summer_project.demo.model.Role;
+
 public class UserResponse {
     private String id;
     private String username;
     private String email;
-    private String role;
+    private Role role;
     public UserResponse(){
 
     }
-    public UserResponse(String id, String username, String email, String role){
+    public UserResponse(String id, String username, String email, Role role){
         this.id = id;
         this.username = username;
         this.email = email;
@@ -39,11 +41,11 @@ public class UserResponse {
         this.email = email;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

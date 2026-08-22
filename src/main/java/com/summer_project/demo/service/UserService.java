@@ -6,6 +6,7 @@ import com.summer_project.demo.dto.UserResponse;
 import com.summer_project.demo.exception.EmailAlreadyExistsException;
 import com.summer_project.demo.exception.InvalidPasswordException;
 import com.summer_project.demo.exception.UserNotFoundException;
+import com.summer_project.demo.model.Role;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class UserService {
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new EmailAlreadyExistsException("Email already exits!");
         }
-        user.setRole("USER");
+        user.setRole(Role.USER);
         return (userRepository.save(user));
     }
 

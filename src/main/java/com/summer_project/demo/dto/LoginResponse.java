@@ -1,10 +1,10 @@
 package com.summer_project.demo.dto;
-
+import com.summer_project.demo.model.Role;
 public class LoginResponse {
     private String token;
     private String email;
-    private String role;
-    public LoginResponse(String token, String email, String role){
+    private Role role;
+    public LoginResponse(String token, String email, Role role){
         this.token = token;
         this.email = email;
         this.role = role;
@@ -26,12 +26,11 @@ public class LoginResponse {
         this.email = email;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
-
 }

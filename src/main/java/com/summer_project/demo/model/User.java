@@ -2,6 +2,7 @@ package com.summer_project.demo.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,14 +14,14 @@ public class User {
     @NotBlank(message = "Username can't be empty!")
     private String username;
     @NotBlank(message = "Email can't be empty!")
-    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
     private String email;
     @NotBlank(message = "Password can't be empty!")
     @Size(min = 4, max = 16, message = "min of password is 4 and max of it is 16")
     private String password;
-    private String role;
+    private Role role;
     public User(){}
-    public User(String username, String email, String password, String role){
+    public User(String username, String email, String password, Role role){
         this.username = username;
         this.email = email;
         this.password = password;
@@ -59,11 +60,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }
