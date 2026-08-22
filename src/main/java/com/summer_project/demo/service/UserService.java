@@ -2,12 +2,15 @@ package com.summer_project.demo.service;
 
 import com.summer_project.demo.dto.ChangePasswordRequest;
 import com.summer_project.demo.dto.UpdateProfileRequest;
+import com.summer_project.demo.dto.UserResponse;
 import com.summer_project.demo.exception.EmailAlreadyExistsException;
 import com.summer_project.demo.exception.InvalidPasswordException;
 import com.summer_project.demo.exception.UserNotFoundException;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -50,5 +53,8 @@ public class UserService {
         }
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
+    }
+    public List<UserResponse> getAllUsers(){
+        return userRepository.findAll().stream().map(user -> new UserResponse(user.getId(),user.getUsername(), user.getEmail(), user.getRole())).toList();
     }
 }
