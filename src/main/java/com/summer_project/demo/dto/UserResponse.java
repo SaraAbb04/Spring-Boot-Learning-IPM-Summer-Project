@@ -2,15 +2,15 @@ package com.summer_project.demo.dto;
 
 public class UserResponse {
     private String id;
-    private String userName;
+    private String username;
     private String email;
     private String role;
     public UserResponse(){
 
     }
-    public UserResponse(String id, String userName, String email, String role){
+    public UserResponse(String id, String username, String email, String role){
         this.id = id;
-        this.userName = userName;
+        this.username = username;
         this.email = email;
         this.role = role;
     }
@@ -24,11 +24,11 @@ public class UserResponse {
     }
 
     public String getUserName() {
-        return userName;
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserName(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
