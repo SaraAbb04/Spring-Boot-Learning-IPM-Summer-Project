@@ -1,7 +1,9 @@
 package com.summer_project.demo.controller;
 
 import com.summer_project.demo.dto.UserResponse;
+import com.summer_project.demo.model.User;
 import com.summer_project.demo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
