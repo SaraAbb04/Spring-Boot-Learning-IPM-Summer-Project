@@ -58,4 +58,8 @@ public class UserService {
     public List<UserResponse> getAllUsers(){
         return userRepository.findAll().stream().map(user -> new UserResponse(user.getId(),user.getUsername(), user.getEmail(), user.getRole())).toList();
     }
+    public void deleteUser(String email){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found!"));
+        userRepository.delete(user);
+    }
 }
