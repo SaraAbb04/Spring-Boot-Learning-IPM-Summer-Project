@@ -7,6 +7,7 @@ import com.summer_project.demo.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TicketService {
@@ -27,5 +28,8 @@ public class TicketService {
         ticket.setCreatedBy(email);
         ticket.setCreatedAt(LocalDateTime.now());
         return ticketRepository.save(ticket);
+    }
+    public List<Ticket> getMyTickets(String email){
+        return ticketRepository.findByCreatedBy(email);
     }
 }
