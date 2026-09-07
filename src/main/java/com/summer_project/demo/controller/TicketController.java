@@ -5,6 +5,7 @@ import com.summer_project.demo.dto.UpdateTicketRequest;
 import com.summer_project.demo.model.Ticket;
 import com.summer_project.demo.service.TicketService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,5 +36,10 @@ public class TicketController {
     @PutMapping("/{id}")
     public Ticket updateTicket(@PathVariable String id, Authentication authentication, @Valid @RequestBody UpdateTicketRequest request){
         return ticketService.updateTicket(id, authentication.getName(), request);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTicket(@PathVariable String id, Authentication authentication){
+        ticketService.deleteTicket(id, authentication.getName());
+        return ResponseEntity.ok("Ticket deleted successfully");
     }
 }

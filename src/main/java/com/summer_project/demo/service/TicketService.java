@@ -52,4 +52,8 @@ public class TicketService {
         ticket.setPriority(request.getPriority());
         return ticketRepository.save(ticket);
     }
+    public void deleteTicket(String ticketId, String userEmail){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
+        ticketRepository.delete(ticket);
+    }
 }
