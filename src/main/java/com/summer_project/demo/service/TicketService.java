@@ -1,6 +1,7 @@
 package com.summer_project.demo.service;
 
 import com.summer_project.demo.dto.CreateTicketRequest;
+import com.summer_project.demo.dto.UpdateTicketRequest;
 import com.summer_project.demo.exception.TicketNotFoundException;
 import com.summer_project.demo.exception.UnauthorizedTicketAccessException;
 import com.summer_project.demo.model.Ticket;
@@ -40,5 +41,15 @@ public class TicketService {
             throw new UnauthorizedTicketAccessException("You can't access to this ticket");
         }
         return ticket;
+    }
+    public Ticket updateTicket(String ticketId, String userEmail, UpdateTicketRequest request){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found"));
+        if(!ticket.getCreatedBy().equals(userEmail)){
+            throw new UnauthorizedTicketAccessException("You can't access to this ticket");
+        }
+        ticket.setTitle(request.getTitle());
+        ticket.setDescription(request.getDescription());
+        ticket.setPriority(request.getPriority());
+        return ticketRepository.save(ticket);
     }
 }
