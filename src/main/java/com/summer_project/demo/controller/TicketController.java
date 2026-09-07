@@ -26,4 +26,9 @@ public class TicketController {
         String email = authentication.getName();
         return ticketService.getMyTickets(email);
     }
+    @GetMapping("/{id}")
+    public Ticket getTicketById(@PathVariable String id, Authentication authentication){
+        String email = authentication.getName();
+        return ticketService.getTicketById(id, email);
+    }
 }

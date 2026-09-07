@@ -1,6 +1,8 @@
 package com.summer_project.demo.service;
 
 import com.summer_project.demo.dto.CreateTicketRequest;
+import com.summer_project.demo.exception.TicketNotFoundException;
+import com.summer_project.demo.exception.UnauthorizedTicketAccessException;
 import com.summer_project.demo.model.Ticket;
 import com.summer_project.demo.model.TicketStatus;
 import com.summer_project.demo.repository.TicketRepository;
@@ -31,5 +33,12 @@ public class TicketService {
     }
     public List<Ticket> getMyTickets(String email){
         return ticketRepository.findByCreatedBy(email);
+    }
+    public Ticket getTicketById(String ticketId, String email){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
+        if(!ticket.getCreatedBy().equals(email)){
+            throw new UnauthorizedTicketAccessException("You can't access to this ticket");
+        }
+        return ticket;
     }
 }

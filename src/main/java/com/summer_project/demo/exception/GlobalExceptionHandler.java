@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class MyExceptionHandler {
+public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException exception){
         return new ResponseEntity<>(
@@ -43,5 +43,19 @@ public class MyExceptionHandler {
         response.put("time", new Date().toString());
         response.put("message", throwable.getMessage());
         return response;
+    }
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedTicketAccessException(UnauthorizedException exception){
+        return new ResponseEntity<>(
+                generate(exception),
+                HttpStatus.FORBIDDEN
+        );
+    }
+    @ExceptionHandler(TicketNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleTicketNotFoundException(TicketNotFoundException exception){
+        return new ResponseEntity<>(
+                generate(exception),
+                HttpStatus.NOT_FOUND
+        );
     }
 }
