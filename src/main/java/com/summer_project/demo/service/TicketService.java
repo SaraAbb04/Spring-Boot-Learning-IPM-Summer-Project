@@ -66,4 +66,11 @@ public class TicketService {
     public Ticket getTicketForAdmin(String ticketId){
         return ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
     }
+    public Ticket changeTicketStatus(String ticketId, TicketStatus newStatus, String adminEmail){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
+        ticket.setStatus(newStatus);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        ticketHistoryService.createdHistory(ticketId, newStatus, "Ticket status changed to " + newStatus, adminEmail);
+        return updatedTicket;
+    }
 }

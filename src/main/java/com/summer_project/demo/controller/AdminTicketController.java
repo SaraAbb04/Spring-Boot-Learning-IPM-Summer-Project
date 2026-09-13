@@ -1,11 +1,11 @@
 package com.summer_project.demo.controller;
 
+import com.summer_project.demo.dto.ChangeTicketStatusRequest;
 import com.summer_project.demo.model.Ticket;
 import com.summer_project.demo.service.TicketService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,5 +23,9 @@ public class AdminTicketController {
     @GetMapping("/{id}")
     public Ticket getTicketById(@PathVariable String id){
         return ticketService.getTicketForAdmin(id);
+    }
+    @PutMapping("/{id}/status")
+    public Ticket changeTicketStatus(@PathVariable String id, Authentication authentication, @Valid @RequestBody ChangeTicketStatusRequest request){
+        return ticketService.changeTicketStatus(id, request.getTicketStatus(), authentication.getName());
     }
 }
