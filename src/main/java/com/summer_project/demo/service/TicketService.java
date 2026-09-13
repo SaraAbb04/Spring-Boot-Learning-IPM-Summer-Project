@@ -15,8 +15,10 @@ import java.util.List;
 @Service
 public class TicketService {
     private final TicketRepository ticketRepository;
-    public TicketService(TicketRepository ticketRepository){
+    private final TicketHistoryService ticketHistoryService;
+    public TicketService(TicketRepository ticketRepository, TicketHistoryService ticketHistoryService){
         this.ticketRepository = ticketRepository;
+        this.ticketHistoryService = ticketHistoryService;
     }
 
     public TicketRepository getTicketRepository() {
@@ -30,7 +32,9 @@ public class TicketService {
         ticket.setStatus(TicketStatus.OPEN);
         ticket.setCreatedBy(email);
         ticket.setCreatedAt(LocalDateTime.now());
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+        ticketHistoryService.createdHistory(savedTicket.getId(), TicketStatus.OPEN, "Ticket created", email);
+        return savedTicket;
     }
     public List<Ticket> getMyTickets(String email){
         return ticketRepository.findByCreatedBy(email);
@@ -55,5 +59,11 @@ public class TicketService {
     public void deleteTicket(String ticketId, String userEmail){
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
         ticketRepository.delete(ticket);
+    }
+    public List<Ticket> getAllTickets(){
+        return ticketRepository.findAll();
+    }
+    public Ticket getTicketForAdmin(String ticketId){
+        return ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
     }
 }
