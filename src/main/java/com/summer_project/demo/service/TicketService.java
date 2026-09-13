@@ -73,4 +73,8 @@ public class TicketService {
         ticketHistoryService.createdHistory(ticketId, newStatus, "Ticket status changed to " + newStatus, adminEmail);
         return updatedTicket;
     }
+    public void addAdminReply(String ticketId, String message, String adminEmail){
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
+        ticketHistoryService.createdHistory(ticket.getId(), ticket.getStatus(), message, adminEmail);
+    }
 }
