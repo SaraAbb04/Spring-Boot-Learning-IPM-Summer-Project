@@ -3,6 +3,8 @@ package com.summer_project.demo.controller;
 import com.summer_project.demo.dto.AddTicketReplyRequest;
 import com.summer_project.demo.dto.ChangeTicketStatusRequest;
 import com.summer_project.demo.model.Ticket;
+import com.summer_project.demo.model.TicketHistory;
+import com.summer_project.demo.service.TicketHistoryService;
 import com.summer_project.demo.service.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +17,10 @@ import java.util.List;
 @RequestMapping("/admin/tickets")
 public class AdminTicketController {
     private final TicketService ticketService;
-    public AdminTicketController(TicketService ticketService){
+    private final TicketHistoryService ticketHistoryService;
+    public AdminTicketController(TicketService ticketService, TicketHistoryService ticketHistoryService){
         this.ticketService = ticketService;
+        this.ticketHistoryService = ticketHistoryService;
     }
     @GetMapping
     public List<Ticket> getAllTickets(){
@@ -34,5 +38,10 @@ public class AdminTicketController {
     public ResponseEntity<String> addReply(@PathVariable String id, Authentication authentication, @Valid @RequestBody AddTicketReplyRequest request){
         ticketService.addAdminReply(id, request.getMessage(), authentication.getName());
         return ResponseEntity.ok("Reply added successfully!");
+    }
+    @GetMapping("/{id}/history")
+    public List<TicketHistory> getTicketHistory(@PathVariable String id){
+        ticketService.getTicketForAdmin(id);
+        return ticketHistoryService.getTicketHistory(id);
     }
 }
