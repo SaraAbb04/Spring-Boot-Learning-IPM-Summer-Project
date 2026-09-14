@@ -1,6 +1,7 @@
 package com.summer_project.demo.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -11,8 +12,11 @@ public class Ticket {
     private String id;
     private String title;
     private String description;
+    @Indexed
     private TicketStatus status;
+    @Indexed
     private TicketPriority priority;
+    @Indexed
     private String createdBy;
     private LocalDateTime createdAt;
     public Ticket(){}

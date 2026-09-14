@@ -1,6 +1,7 @@
 package com.summer_project.demo.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 public class TicketHistory {
     @Id
     private String id;
+    @Indexed
     private String ticketId;
     private TicketStatus status;
     private String message;

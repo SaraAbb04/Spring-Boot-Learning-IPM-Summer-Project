@@ -4,16 +4,22 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
+@CompoundIndexes({})
 public class User {
     @Id
     private String id;
     @NotBlank(message = "Username can't be empty!")
+    @Indexed(unique = true)
     private String username;
     @NotBlank(message = "Email can't be empty!")
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+    @Indexed(unique = true)
     private String email;
     @NotBlank(message = "Password can't be empty!")
     @Size(min = 4, max = 16, message = "min of password is 4 and max of it is 16")
