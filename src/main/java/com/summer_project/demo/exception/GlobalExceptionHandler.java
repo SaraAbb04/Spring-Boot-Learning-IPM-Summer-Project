@@ -44,8 +44,9 @@ public class GlobalExceptionHandler {
         response.put("message", throwable.getMessage());
         return response;
     }
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<Map<String, String>> handleUnauthorizedTicketAccessException(UnauthorizedException exception){
+    @ExceptionHandler(UnauthorizedTicketAccessException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedTicketAccessException(
+            UnauthorizedTicketAccessException exception) {
         return new ResponseEntity<>(
                 generate(exception),
                 HttpStatus.FORBIDDEN
