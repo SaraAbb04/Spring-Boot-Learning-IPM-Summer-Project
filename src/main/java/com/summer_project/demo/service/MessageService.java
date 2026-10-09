@@ -6,6 +6,10 @@ import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.ConversationRepository;
 import com.summer_project.demo.repository.MessageRepository;
 import com.summer_project.demo.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +34,12 @@ public class MessageService {
         conversation.setUpdatedAt(now);
         conversationRepository.save(conversation);
         return messageRepository.save(message);
+    }
+    public Page<Message> getMyMessages(Authentication authentication, String conversationId, int page, int size) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        conversationRepository.findByIdAndUserId(conversationId, user.getId()).orElseThrow(() -> new RuntimeException("Conversation not found"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt"));
+        return messageRepository.findByConversationIdAndUserId(conversationId, user.getId(), pageable);
     }
 }
