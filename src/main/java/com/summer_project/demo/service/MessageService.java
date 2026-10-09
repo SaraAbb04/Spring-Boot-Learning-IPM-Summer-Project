@@ -4,9 +4,11 @@ import com.summer_project.demo.ai.AiService;
 import com.summer_project.demo.ai.dto.ChatMessage;
 import com.summer_project.demo.ai.dto.ChatRequest;
 import com.summer_project.demo.ai.dto.ChatResponse;
+import com.summer_project.demo.model.AiUsage;
 import com.summer_project.demo.model.Conversation;
 import com.summer_project.demo.model.Message;
 import com.summer_project.demo.model.User;
+import com.summer_project.demo.repository.AiUsageRepository;
 import com.summer_project.demo.repository.ConversationRepository;
 import com.summer_project.demo.repository.MessageRepository;
 import com.summer_project.demo.repository.UserRepository;
@@ -27,11 +29,13 @@ public class MessageService {
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
     private final AiService aiService;
-    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService) {
+    private final AiUsageRepository aiUsageRepository;
+    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService, AiUsageRepository aiUsageRepository) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
         this.aiService = aiService;
+        this.aiUsageRepository = aiUsageRepository;
     }
     public Message createUserMessage(Authentication authentication, String conversationId, String content) {
         String email = authentication.getName();
@@ -65,6 +69,10 @@ public class MessageService {
             throw new RuntimeException("Invalid response from AI service");
         }
         String answer = response.choices().get(0).message().content();
+        if (response.usage() != null) {
+            AiUsage usage = new AiUsage(user.getId(), conversation.getId(), conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens(), response.usage().total_tokens(), LocalDateTime.now(), "SUCCESS", null);
+            aiUsageRepository.save(usage);
+        }
         Message assistantMessage = new Message(conversation.getId(), user.getId(), "assistant", answer, conversation.getModel(), LocalDateTime.now());
         messageRepository.save(assistantMessage);
         conversation.setUpdatedAt(LocalDateTime.now());
