@@ -14,8 +14,8 @@ public class MessageController {
         this.messageService = messageService;
     }
     @PostMapping
-    public Message createUserMessage(Authentication authentication, @PathVariable String conversationId, @RequestBody CreateMessageRequest request) {
-        return messageService.createUserMessage(authentication, conversationId, request.content());
+    public Message sendMessageToAi(Authentication authentication, @PathVariable String conversationId, @RequestBody CreateMessageRequest request) {
+        return messageService.sendMessageToAi(authentication, conversationId, request.content());
     }
     public record CreateMessageRequest(String content) {}
     @GetMapping
