@@ -10,5 +10,5 @@ import java.util.List;
 public interface AiUsageRepository  extends MongoRepository<AiUsage, String> {
     Page<AiUsage> findByUserId(String userId, Pageable pageable);
     List<AiUsage> findByConversationId(String conversationId);
-    List<AiUsage> findByUserIdAndConversationId(String userId, String conversationId);
+    Page<AiUsage> findByUserIdAndConversationId(String userId, String conversationId, Pageable pageable);
 }
