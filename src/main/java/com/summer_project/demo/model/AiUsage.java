@@ -3,6 +3,7 @@ package com.summer_project.demo.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "ai_usage")
@@ -18,6 +19,8 @@ public class AiUsage {
     private LocalDateTime requestTime;
     private String status;
     private String errorMessage;
+    private BigDecimal cost;
+    private String currency;
     public AiUsage() {}
     public AiUsage(String userId, String conversationId, String model, long inputTokens, long outputTokens, long totalTokens, LocalDateTime requestTime, String status, String errorMessage) {
         this.userId = userId;
@@ -109,5 +112,21 @@ public class AiUsage {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public BigDecimal getCost() {
+        return cost;
+    }
+
+    public void setCost(BigDecimal cost) {
+        this.cost = cost;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 }
