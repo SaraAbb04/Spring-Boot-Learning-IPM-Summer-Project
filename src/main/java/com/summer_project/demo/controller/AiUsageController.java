@@ -1,5 +1,6 @@
 package com.summer_project.demo.controller;
 
+import com.summer_project.demo.ai.dto.UsageSummaryResponse;
 import com.summer_project.demo.model.AiUsage;
 import com.summer_project.demo.service.AiUsageService;
 import org.springframework.data.domain.Page;
@@ -20,5 +21,9 @@ public class AiUsageController {
     @GetMapping("/conversations/{conversationId}")
     public Page<AiUsage> getMyConversationUsage(Authentication authentication, @PathVariable String conversationId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return aiUsageService.getMyConversationUsage(authentication, conversationId, page, size);
+    }
+    @GetMapping("/summary")
+    public UsageSummaryResponse getMyUsageSummary(Authentication authentication) {
+        return aiUsageService.getMyUsageSummary(authentication);
     }
 }

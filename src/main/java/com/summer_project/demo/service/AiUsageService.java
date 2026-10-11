@@ -1,5 +1,6 @@
 package com.summer_project.demo.service;
 
+import com.summer_project.demo.ai.dto.UsageSummaryResponse;
 import com.summer_project.demo.model.AiUsage;
 import com.summer_project.demo.model.User;
 import com.summer_project.demo.repository.AiUsageRepository;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AiUsageService {
@@ -29,5 +32,13 @@ public class AiUsageService {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "requestTime"));
         return aiUsageRepository.findByUserIdAndConversationId(user.getId(), conversationId, pageable);
+    }
+    public UsageSummaryResponse getMyUsageSummary(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+        List<UsageSummaryResponse> summaries = aiUsageRepository.getUsageSummaryByUserId(user.getId());
+        if (summaries.isEmpty()) {
+            return new UsageSummaryResponse(0, 0, 0, 0);
+        }
+        return summaries.get(0);
     }
 }
