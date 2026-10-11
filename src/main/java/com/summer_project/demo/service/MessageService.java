@@ -30,12 +30,14 @@ public class MessageService {
     private final UserRepository userRepository;
     private final AiService aiService;
     private final AiUsageRepository aiUsageRepository;
-    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService, AiUsageRepository aiUsageRepository) {
+    private final CostCalculationService costCalculationService;
+    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService, AiUsageRepository aiUsageRepository, CostCalculationService costCalculationService) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
         this.aiService = aiService;
         this.aiUsageRepository = aiUsageRepository;
+        this.costCalculationService = costCalculationService;
     }
     public Message createUserMessage(Authentication authentication, String conversationId, String content) {
         String email = authentication.getName();
@@ -71,6 +73,14 @@ public class MessageService {
         String answer = response.choices().get(0).message().content();
         if (response.usage() != null) {
             AiUsage usage = new AiUsage(user.getId(), conversation.getId(), conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens(), response.usage().total_tokens(), LocalDateTime.now(), "SUCCESS", null);
+            try {
+                var cost = costCalculationService.calculateCost(conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens());
+                usage.setCost(cost);
+                usage.setCurrency("USD");
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                //The model price is unknown, or the calculation encountered an invalid input.
+                //The chat should proceed without recording an estimated cost.
+            }
             aiUsageRepository.save(usage);
         }
         Message assistantMessage = new Message(conversation.getId(), user.getId(), "assistant", answer, conversation.getModel(), LocalDateTime.now());
