@@ -17,19 +17,11 @@ public class ModelPricingService {
     }
     public ModelPricing createPricing(ModelPricingRequest request) {
         validatePricing(request);
-        if (request.model() == null || request.model().isBlank()) {
-            throw new IllegalArgumentException("Model is required");
-        }
-        if (request.inputPricePerMillionTokens() == null || request.outputPricePerMillionTokens() == null || request.inputPricePerMillionTokens().compareTo(BigDecimal.ZERO) < 0 || request.outputPricePerMillionTokens().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Prices must be non-negative");
-        }
-        if (request.currency() == null || request.currency().isBlank()) {
-            throw new IllegalArgumentException("Currency is required");
-        }
+        String model = request.model().trim();
         if (request.active()) {
-            deactivateActivePricing(request.model().trim());
+            deactivateActivePricing(model);
         }
-        ModelPricing pricing = new ModelPricing(request.model().trim(), request.inputPricePerMillionTokens(), request.outputPricePerMillionTokens(), request.currency().trim().toUpperCase(), request.active(), LocalDateTime.now());
+        ModelPricing pricing = new ModelPricing(model, request.inputPricePerMillionTokens(), request.outputPricePerMillionTokens(), request.currency().trim().toUpperCase(), request.active(), LocalDateTime.now());
         return modelPricingRepository.save(pricing);
     }
     public List<ModelPricing> getAllPricing() {
@@ -38,19 +30,22 @@ public class ModelPricingService {
     public ModelPricing updatePricing(String id, ModelPricingRequest request) {
         validatePricing(request);
         ModelPricing oldPricing = modelPricingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Pricing not found: " + id));
-        validatePricing(request);
-        if (!oldPricing.getModel().equals(request.model().trim())) {
+        String model = request.model().trim();
+        if (!oldPricing.getModel().equals(model)) {
             throw new IllegalArgumentException("Model cannot be changed during price update");
         }
         oldPricing.setActive(false);
         modelPricingRepository.save(oldPricing);
-        ModelPricing newPricing = new ModelPricing(oldPricing.getModel(), request.inputPricePerMillionTokens(), request.outputPricePerMillionTokens(), request.currency().trim().toUpperCase(), request.active(), LocalDateTime.now());
         if (request.active()) {
-            deactivateActivePricing(oldPricing.getModel());
+            deactivateActivePricing(model);
         }
+        ModelPricing newPricing = new ModelPricing(model, request.inputPricePerMillionTokens(), request.outputPricePerMillionTokens(), request.currency().trim().toUpperCase(), request.active(), LocalDateTime.now());
         return modelPricingRepository.save(newPricing);
     }
     private void validatePricing(ModelPricingRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Pricing request is required");
+        }
         if (request.model() == null || request.model().isBlank()) {
             throw new IllegalArgumentException("Model is required");
         }
