@@ -74,12 +74,12 @@ public class MessageService {
         if (response.usage() != null) {
             AiUsage usage = new AiUsage(user.getId(), conversation.getId(), conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens(), response.usage().total_tokens(), LocalDateTime.now(), "SUCCESS", null);
             try {
-                var cost = costCalculationService.calculateCost(conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens());
-                usage.setCost(cost);
-                usage.setCurrency("USD");
+                var result = costCalculationService.calculateCost(conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens());
+                usage.setCost(result.cost());
+                usage.setCurrency(result.currency());
             } catch (IllegalStateException | IllegalArgumentException e) {
-                //The model price is unknown, or the calculation encountered an invalid input.
-                //The chat should proceed without recording an estimated cost.
+                // The model price is unknown, or the calculation encountered an invalid input.
+                // The chat should proceed without recording an estimated cost.
             }
             aiUsageRepository.save(usage);
         }
