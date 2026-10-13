@@ -77,6 +77,7 @@ public class MessageService {
                 var result = costCalculationService.calculateCost(conversation.getModel(), response.usage().prompt_tokens(), response.usage().completion_tokens());
                 usage.setCost(result.cost());
                 usage.setCurrency(result.currency());
+                usage.setPricingId(result.pricingId());
             } catch (IllegalStateException | IllegalArgumentException e) {
                 // The model price is unknown, or the calculation encountered an invalid input.
                 // The chat should proceed without recording an estimated cost.

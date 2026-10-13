@@ -2,6 +2,6 @@ package com.summer_project.demo.dto;
 
 import java.math.BigDecimal;
 
-public record CostCalculationResult(BigDecimal cost, String currency) {
+public record CostCalculationResult(BigDecimal cost, String currency, String pricingId) {
 
 }

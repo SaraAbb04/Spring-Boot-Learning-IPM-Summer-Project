@@ -21,6 +21,7 @@ public class AiUsage {
     private String errorMessage;
     private BigDecimal cost;
     private String currency;
+    private String pricingId;
     public AiUsage() {}
     public AiUsage(String userId, String conversationId, String model, long inputTokens, long outputTokens, long totalTokens, LocalDateTime requestTime, String status, String errorMessage) {
         this.userId = userId;
@@ -128,5 +129,13 @@ public class AiUsage {
 
     public void setCurrency(String currency) {
         this.currency = currency;
+    }
+
+    public String getPricingId() {
+        return pricingId;
+    }
+
+    public void setPricingId(String pricingId) {
+        this.pricingId = pricingId;
     }
 }

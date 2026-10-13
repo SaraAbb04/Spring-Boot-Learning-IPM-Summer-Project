@@ -1,12 +1,14 @@
 package com.summer_project.demo.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "model_pricing")
+@CompoundIndex(name = "unique_active_pricing_per_model", def = "{'model': 1}", unique = true, partialFilter = "{'active': true}")
 public class ModelPricing {
     @Id
     private String id;

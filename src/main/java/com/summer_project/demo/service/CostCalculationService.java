@@ -23,6 +23,6 @@ public class CostCalculationService {
         BigDecimal inputCost = pricing.getInputPricePerMillionTokens().multiply(BigDecimal.valueOf(inputTokens)).divide(ONE_MILLION, 12, RoundingMode.HALF_UP);
         BigDecimal outputCost = pricing.getOutputPricePerMillionTokens().multiply(BigDecimal.valueOf(outputTokens)).divide(ONE_MILLION, 12, RoundingMode.HALF_UP);
         BigDecimal totalCost = inputCost.add(outputCost);
-        return new CostCalculationResult(totalCost, pricing.getCurrency());
+        return new CostCalculationResult(totalCost, pricing.getCurrency(), pricing.getId());
     }
 }
