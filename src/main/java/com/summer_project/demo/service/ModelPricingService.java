@@ -1,6 +1,7 @@
 package com.summer_project.demo.service;
 
 import com.summer_project.demo.dto.ModelPricingRequest;
+import com.summer_project.demo.exception.PricingNotFoundException;
 import com.summer_project.demo.model.ModelPricing;
 import com.summer_project.demo.repository.ModelPricingRepository;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class ModelPricingService {
     }
     public ModelPricing updatePricing(String id, ModelPricingRequest request) {
         validatePricing(request);
-        ModelPricing oldPricing = modelPricingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Pricing not found: " + id));
+        ModelPricing oldPricing = modelPricingRepository.findById(id).orElseThrow(() -> new PricingNotFoundException("Pricing not found: " + id));
         String model = request.model().trim();
         if (!oldPricing.getModel().equals(model)) {
             throw new IllegalArgumentException("Model cannot be changed during price update");

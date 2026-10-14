@@ -1,4 +1,5 @@
 package com.summer_project.demo.exception;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -64,6 +65,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 generate(exception),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+    @ExceptionHandler(PricingNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePricingNotFoundException(PricingNotFoundException exception) {
+        return new ResponseEntity<>(
+                generate(exception),
+                HttpStatus.NOT_FOUND
+        );
+    }
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateKeyException(DuplicateKeyException exception) {
+        Map<String, String> response = new HashMap<>();
+        response.put("time", new Date().toString());
+        response.put("message", "An active pricing already exists for this model.");
+        return new ResponseEntity<>(
+                response,
+                HttpStatus.CONFLICT
         );
     }
 }

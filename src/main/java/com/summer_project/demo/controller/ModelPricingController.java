@@ -1,5 +1,6 @@
 package com.summer_project.demo.controller;
 
+import org.springframework.dao.DuplicateKeyException;
 import com.summer_project.demo.dto.ModelPricingRequest;
 import com.summer_project.demo.model.ModelPricing;
 import com.summer_project.demo.service.ModelPricingService;
@@ -27,5 +28,10 @@ public class ModelPricingController {
     @PutMapping("/{id}")
     public ModelPricing updatePricing(@PathVariable String id, @RequestBody ModelPricingRequest request) {
         return modelPricingService.updatePricing(id, request);
+    }
+    //Duplicate Testing in ExceptionHandler
+    @GetMapping("/test-conflict")
+    public void testConflict() {
+        throw new DuplicateKeyException("Test duplicate key exception");
     }
 }
