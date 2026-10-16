@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -37,7 +37,7 @@ public class AiUsageService {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         List<UsageSummaryResponse> summaries = aiUsageRepository.getUsageSummaryByUserId(user.getId());
         if (summaries.isEmpty()) {
-            return new UsageSummaryResponse(0, 0, 0, 0);
+            return new UsageSummaryResponse(0, 0, 0, 0, BigDecimal.ZERO, 0);
         }
         return summaries.get(0);
     }
