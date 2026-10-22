@@ -27,6 +27,9 @@ public class SubscriptionService {
         if (planId == null || planId.isBlank()) {
             throw new IllegalArgumentException("Plan ID is required");
         }
+        if (subscriptionRepository.existsByUserIdAndStatus(userId, "ACTIVE")) {
+            throw new IllegalArgumentException("User already has an active subscription");
+        }
         userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Plan plan = planRepository.findById(planId).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
         if (!plan.isActive()) {
