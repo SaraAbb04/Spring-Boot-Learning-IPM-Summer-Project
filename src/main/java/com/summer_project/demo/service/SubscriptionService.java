@@ -2,6 +2,7 @@ package com.summer_project.demo.service;
 
 import com.summer_project.demo.model.Plan;
 import com.summer_project.demo.model.Subscription;
+import com.summer_project.demo.model.SubscriptionStatus;
 import com.summer_project.demo.repository.PlanRepository;
 import com.summer_project.demo.repository.SubscriptionRepository;
 import com.summer_project.demo.repository.UserRepository;
@@ -27,15 +28,22 @@ public class SubscriptionService {
         if (planId == null || planId.isBlank()) {
             throw new IllegalArgumentException("Plan ID is required");
         }
-        if (subscriptionRepository.existsByUserIdAndStatus(userId, "ACTIVE")) {
-            throw new IllegalArgumentException("User already has an active subscription");
-        }
         userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Plan plan = planRepository.findById(planId).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
         if (!plan.isActive()) {
             throw new IllegalArgumentException("Plan is not active");
         }
+        List<Subscription> activeSubscriptions = subscriptionRepository.findByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE.name());
         LocalDateTime now = LocalDateTime.now();
+        for (Subscription existingSubscription : activeSubscriptions) {
+            if (existingSubscription.getEndDate() != null && !existingSubscription.getEndDate().isAfter(now)) {
+                existingSubscription.setStatus(SubscriptionStatus.EXPIRED.name());
+                subscriptionRepository.save(existingSubscription);
+            }
+        }
+        if (subscriptionRepository.existsByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE.name())) {
+            throw new IllegalArgumentException("User already has an active subscription");
+        }
         LocalDateTime endDate;
         switch (plan.getBillingPeriod().toUpperCase()) {
             case "MONTHLY" -> endDate = now.plusMonths(1);
@@ -43,7 +51,7 @@ public class SubscriptionService {
             case "ONE_TIME" -> endDate = null;
             default -> throw new IllegalArgumentException("Unsupported billing period");
         }
-        Subscription subscription = new Subscription(userId, planId, "ACTIVE", now, endDate, now);
+        Subscription subscription = new Subscription(userId, planId, SubscriptionStatus.ACTIVE.name(), now, endDate, now);
         return subscriptionRepository.save(subscription);
     }
     public List<Subscription> getSubscriptionsByUserId(String userId) {

@@ -11,4 +11,5 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, St
     Optional<Subscription> findFirstByUserIdAndStatusOrderByCreatedAtDesc(String userId, String status);
     List<Subscription> findByStatus(String status);
     boolean existsByUserIdAndStatus(String userId, String status);
+    List<Subscription> findByUserIdAndStatus(String userId, String status);
 }
