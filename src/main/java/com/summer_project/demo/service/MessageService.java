@@ -4,10 +4,7 @@ import com.summer_project.demo.ai.AiService;
 import com.summer_project.demo.ai.dto.ChatMessage;
 import com.summer_project.demo.ai.dto.ChatRequest;
 import com.summer_project.demo.ai.dto.ChatResponse;
-import com.summer_project.demo.model.AiUsage;
-import com.summer_project.demo.model.Conversation;
-import com.summer_project.demo.model.Message;
-import com.summer_project.demo.model.User;
+import com.summer_project.demo.model.*;
 import com.summer_project.demo.repository.AiUsageRepository;
 import com.summer_project.demo.repository.ConversationRepository;
 import com.summer_project.demo.repository.MessageRepository;
@@ -31,13 +28,15 @@ public class MessageService {
     private final AiService aiService;
     private final AiUsageRepository aiUsageRepository;
     private final CostCalculationService costCalculationService;
-    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService, AiUsageRepository aiUsageRepository, CostCalculationService costCalculationService) {
+    private final SubscriptionService subscriptionService;
+    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository, AiService aiService, AiUsageRepository aiUsageRepository, CostCalculationService costCalculationService, SubscriptionService subscriptionService) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
         this.aiService = aiService;
         this.aiUsageRepository = aiUsageRepository;
         this.costCalculationService = costCalculationService;
+        this.subscriptionService = subscriptionService;
     }
     public Message createUserMessage(Authentication authentication, String conversationId, String content) {
         String email = authentication.getName();
@@ -60,6 +59,7 @@ public class MessageService {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         Conversation conversation = conversationRepository.findByIdAndUserId(conversationId, user.getId()).orElseThrow(() -> new RuntimeException("Conversation not found"));
+        subscriptionService.checkUsageLimits(user.getId());
         LocalDateTime now = LocalDateTime.now();
         Message userMessage = new Message(conversation.getId(), user.getId(), "user", content, conversation.getModel(), now);
         messageRepository.save(userMessage);

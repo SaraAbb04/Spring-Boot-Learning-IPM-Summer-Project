@@ -1,8 +1,10 @@
 package com.summer_project.demo.service;
 
+import com.summer_project.demo.model.AiUsage;
 import com.summer_project.demo.model.Plan;
 import com.summer_project.demo.model.Subscription;
 import com.summer_project.demo.model.SubscriptionStatus;
+import com.summer_project.demo.repository.AiUsageRepository;
 import com.summer_project.demo.repository.PlanRepository;
 import com.summer_project.demo.repository.SubscriptionRepository;
 import com.summer_project.demo.repository.UserRepository;
@@ -16,10 +18,12 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, PlanRepository planRepository, UserRepository userRepository) {
+    private final AiUsageRepository aiUsageRepository;
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, PlanRepository planRepository, UserRepository userRepository, AiUsageRepository aiUsageRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.planRepository = planRepository;
         this.userRepository = userRepository;
+        this.aiUsageRepository = aiUsageRepository;
     }
     public Subscription createSubscription(String userId, String planId) {
         if (userId == null || userId.isBlank()) {
@@ -53,6 +57,32 @@ public class SubscriptionService {
         }
         Subscription subscription = new Subscription(userId, planId, SubscriptionStatus.ACTIVE.name(), now, endDate, now);
         return subscriptionRepository.save(subscription);
+    }
+    public void checkUsageLimits(String userId) {
+        LocalDateTime now = LocalDateTime.now();
+        // 1. Find the user's active subscription
+        Subscription subscription = subscriptionRepository.findFirstByUserIdAndStatusOrderByCreatedAtDesc(userId, SubscriptionStatus.ACTIVE.name()).orElseThrow(() -> new IllegalArgumentException("User does not have an active subscription"));
+        // 2. Check subscription expiration
+        if (subscription.getEndDate() != null && !subscription.getEndDate().isAfter(now)) {
+            subscription.setStatus(SubscriptionStatus.EXPIRED.name());
+            subscriptionRepository.save(subscription);
+            throw new IllegalArgumentException("Subscription has expired");
+        }
+        // 3. Find the plan
+        Plan plan = planRepository.findById(subscription.getPlanId()).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        // 4. Get successful usage during this subscription period
+        List<AiUsage> usages = aiUsageRepository.findUsageInPeriod(userId, "SUCCESS", subscription.getStartDate(), now);
+        // 5. Calculate consumption
+        long totalRequests = usages.size();
+        long totalTokens = usages.stream().mapToLong(AiUsage::getTotalTokens).sum();
+        // 6. Check request limit
+        if (totalRequests >= plan.getMaxRequests()) {
+            throw new IllegalArgumentException("Request limit exceeded");
+        }
+        // 7. Check token limit
+        if (totalTokens >= plan.getMaxTokens()) {
+            throw new IllegalArgumentException("Token limit exceeded");
+        }
     }
     public List<Subscription> getSubscriptionsByUserId(String userId) {
         return subscriptionRepository.findByUserId(userId);
