@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ public class PaymentController {
     public ResponseEntity<?> createPayment(Authentication authentication, @RequestBody CreatePaymentRequest request) {
         try {
             User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-            Payment payment = paymentService.createPayment(user.getId(), request.planId(), request.amount(), request.currency());
+            Payment payment = paymentService.createPayment(user.getId(), request.planId());
             return ResponseEntity.status(HttpStatus.CREATED).body(payment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
@@ -38,5 +37,5 @@ public class PaymentController {
         List<Payment> payments = paymentService.getPaymentsByUserId(user.getId());
         return ResponseEntity.ok(payments);
     }
-    public record CreatePaymentRequest(String planId, BigDecimal amount, String currency) {}
+    public record CreatePaymentRequest(String planId) {}
 }

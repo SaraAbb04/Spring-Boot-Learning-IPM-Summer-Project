@@ -2,7 +2,9 @@ package com.summer_project.demo.service;
 
 import com.summer_project.demo.model.Payment;
 import com.summer_project.demo.model.PaymentStatus;
+import com.summer_project.demo.model.Plan;
 import com.summer_project.demo.repository.PaymentRepository;
+import com.summer_project.demo.repository.PlanRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,28 +14,34 @@ import java.math.BigDecimal;
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    public PaymentService(PaymentRepository paymentRepository){
+    private final PlanRepository planRepository;
+    public PaymentService(PaymentRepository paymentRepository, PlanRepository planRepository){
         this.paymentRepository = paymentRepository;
+        this.planRepository = planRepository;
     }
-    public Payment createPayment(String userId, String planId, BigDecimal amount, String currency) {
+    public Payment createPayment(String userId, String planId) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("User ID is required");
         }
         if (planId == null || planId.isBlank()) {
             throw new IllegalArgumentException("Plan ID is required");
         }
-        if (amount == null || amount.signum() < 0) {
-            throw new IllegalArgumentException("Invalid payment amount");
+        Plan plan = planRepository.findById(planId).orElseThrow(()-> new IllegalArgumentException("Plan not found"));
+        if (!plan.isActive()) {
+            throw new IllegalArgumentException("Plan is not active");
         }
-        if (currency == null || currency.isBlank()) {
-            throw new IllegalArgumentException("Currency is required");
+        if (plan.getPrice() == null || plan.getPrice().signum() < 0) {
+            throw new IllegalArgumentException("Invalid plan price");
+        }
+        if (plan.getCurrency() == null || plan.getCurrency().isBlank()) {
+            throw new IllegalArgumentException("Invalid plan currency");
         }
         LocalDateTime now = LocalDateTime.now();
         Payment payment = new Payment();
         payment.setUserId(userId);
-        payment.setPlanId(planId);
-        payment.setAmount(amount);
-        payment.setCurrency(currency);
+        payment.setPlanId(plan.getId());
+        payment.setAmount(plan.getPrice());
+        payment.setCurrency(plan.getCurrency());
         payment.setStatus(PaymentStatus.PENDING.name());
         payment.setCreatedAt(now);
         payment.setUpdatedAt(now);
