@@ -9,15 +9,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.math.BigDecimal;
 
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PlanRepository planRepository;
-    public PaymentService(PaymentRepository paymentRepository, PlanRepository planRepository){
+    private final SubscriptionService subscriptionService;
+    public PaymentService(PaymentRepository paymentRepository, PlanRepository planRepository, SubscriptionService subscriptionService){
         this.paymentRepository = paymentRepository;
         this.planRepository = planRepository;
+        this.subscriptionService = subscriptionService;
     }
     public Payment createPayment(String userId, String planId) {
         if (userId == null || userId.isBlank()) {
@@ -52,5 +53,32 @@ public class PaymentService {
     }
     public Payment getPaymentById(String paymentId) {
         return paymentRepository.findById(paymentId).orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+    }
+    public Payment updatePaymentStatus(String paymentId, PaymentStatus newStatus, String transactionId) {
+        if (paymentId == null || paymentId.isBlank()) {
+            throw new IllegalArgumentException("Payment ID is required");
+        }
+        if (newStatus == null || newStatus == PaymentStatus.PENDING) {
+            throw new IllegalArgumentException("Invalid payment status");
+        }
+        if (transactionId == null || transactionId.isBlank()) {
+            throw new IllegalArgumentException("Transaction ID is required");
+        }
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+        if (!PaymentStatus.PENDING.name().equals(payment.getStatus())) {
+            throw new IllegalArgumentException("Payment has already been processed");
+        }
+        var existingPayment = paymentRepository.findByTransactionId(transactionId);
+        if (existingPayment.isPresent() && !existingPayment.get().getId().equals(paymentId)) {
+            throw new IllegalArgumentException("Transaction ID already exists");
+        }
+        // If payment is successful, create the subscription first.
+        if (newStatus == PaymentStatus.SUCCESS) {
+            subscriptionService.createSubscription(payment.getUserId(), payment.getPlanId());
+        }
+        payment.setStatus(newStatus.name());
+        payment.setTransactionId(transactionId);
+        payment.setUpdatedAt(LocalDateTime.now());
+        return paymentRepository.save(payment);
     }
 }
