@@ -59,32 +59,57 @@ public class PaymentService {
         if (paymentId == null || paymentId.isBlank()) {
             throw new IllegalArgumentException("Payment ID is required");
         }
-        if (newStatus == null || newStatus == PaymentStatus.PENDING) {
+        if (newStatus == null || newStatus == PaymentStatus.PENDING || newStatus == PaymentStatus.PROCESSING) {
             throw new IllegalArgumentException("Invalid payment status");
         }
         if (transactionId == null || transactionId.isBlank()) {
             throw new IllegalArgumentException("Transaction ID is required");
         }
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new IllegalArgumentException("Payment not found"));
-        if (!PaymentStatus.PENDING.name().equals(payment.getStatus())) {
+        // Handle repeated successful callbacks
+        if (PaymentStatus.SUCCESS.name().equals(payment.getStatus())) {
+            if (transactionId.equals(payment.getTransactionId())) {
+                return payment;
+            }
             throw new IllegalArgumentException("Payment has already been processed");
         }
+        // A failed payment cannot be processed again
+        if (PaymentStatus.FAILED.name().equals(payment.getStatus())) {
+            throw new IllegalArgumentException("Payment has already been processed");
+        }
+        // Prevent changing an existing transaction ID
+        if (payment.getTransactionId() != null && !payment.getTransactionId().equals(transactionId)) {
+            throw new IllegalArgumentException("Transaction ID does not match");
+        }
+        // Check transaction ID uniqueness
         var existingPayment = paymentRepository.findByTransactionId(transactionId);
         if (existingPayment.isPresent() && !existingPayment.get().getId().equals(paymentId)) {
             throw new IllegalArgumentException("Transaction ID already exists");
         }
-        // If payment is successful, create the subscription first.
-        if (newStatus == PaymentStatus.SUCCESS) {
-            subscriptionService.createSubscription(payment.getUserId(), payment.getPlanId());
-        }
-        payment.setStatus(newStatus.name());
-        payment.setTransactionId(transactionId);
-        payment.setUpdatedAt(LocalDateTime.now());
-        try{
+        // Handle failed payment
+        if (newStatus == PaymentStatus.FAILED) {
+            if (!PaymentStatus.PENDING.name().equals(payment.getStatus())) {
+                throw new IllegalArgumentException("Payment cannot be marked as failed");
+            }
+            payment.setStatus(PaymentStatus.FAILED.name());
+            payment.setTransactionId(transactionId);
+            payment.setUpdatedAt(LocalDateTime.now());
             return paymentRepository.save(payment);
         }
-        catch(DuplicateKeyException exception){
+        // Step 1: Save PROCESSING status
+        payment.setStatus(PaymentStatus.PROCESSING.name());
+        payment.setTransactionId(transactionId);
+        payment.setUpdatedAt(LocalDateTime.now());
+        try {
+            paymentRepository.save(payment);
+        } catch (DuplicateKeyException e) {
             throw new IllegalArgumentException("Transaction ID already exists");
         }
+        // Step 2: Create or retrieve subscription
+        subscriptionService.createSubscriptionForPayment(payment.getUserId(), payment.getPlanId(), payment.getId());
+        // Step 3: Mark payment as SUCCESS
+        payment.setStatus(PaymentStatus.SUCCESS.name());
+        payment.setUpdatedAt(LocalDateTime.now());
+        return paymentRepository.save(payment);
     }
 }
