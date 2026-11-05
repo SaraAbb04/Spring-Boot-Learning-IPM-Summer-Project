@@ -5,6 +5,7 @@ import com.summer_project.demo.model.PaymentStatus;
 import com.summer_project.demo.model.Plan;
 import com.summer_project.demo.repository.PaymentRepository;
 import com.summer_project.demo.repository.PlanRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -79,6 +80,11 @@ public class PaymentService {
         payment.setStatus(newStatus.name());
         payment.setTransactionId(transactionId);
         payment.setUpdatedAt(LocalDateTime.now());
-        return paymentRepository.save(payment);
+        try{
+            return paymentRepository.save(payment);
+        }
+        catch(DuplicateKeyException exception){
+            throw new IllegalArgumentException("Transaction ID already exists");
+        }
     }
 }

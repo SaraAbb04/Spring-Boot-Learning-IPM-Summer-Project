@@ -1,12 +1,15 @@
 package com.summer_project.demo.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "payments")
+@CompoundIndexes({@CompoundIndex(name = "unique_transaction_id", def = "{'transactionId': 1}", unique = true, partialFilter = "{'transactionId': {$type: 'string'}}")})
 public class Payment {
     @Id
     private String id;
