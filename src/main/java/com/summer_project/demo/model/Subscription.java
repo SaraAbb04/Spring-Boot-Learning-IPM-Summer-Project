@@ -1,16 +1,20 @@
 package com.summer_project.demo.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
 @Document(collection = "subscriptions")
+@CompoundIndexes({@CompoundIndex(name = "unique_subscription_payment_id", def = "{'paymentId': 1}", unique = true, partialFilter = "{'paymentId': {$type: 'string'}}")})
 public class Subscription {
     @Id
     private String id;
     private String userId;
     private String planId;
+    private String paymentId;
     private String status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -79,5 +83,13 @@ public class Subscription {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
     }
 }

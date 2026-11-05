@@ -26,6 +26,29 @@ public class SubscriptionService {
         this.aiUsageRepository = aiUsageRepository;
     }
     public Subscription createSubscription(String userId, String planId) {
+        return createSubscriptionInternal(userId, planId, null);
+    }
+    public Subscription createSubscriptionForPayment(String userId, String planId, String paymentId) {
+        if (paymentId == null || paymentId.isBlank()) {
+            throw new IllegalArgumentException("Payment ID is required");
+        }
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        if (planId == null || planId.isBlank()) {
+            throw new IllegalArgumentException("Plan ID is required");
+        }
+        var existingSubscription = subscriptionRepository.findByPaymentId(paymentId);
+        if (existingSubscription.isPresent()) {
+            Subscription subscription = existingSubscription.get();
+            if (!subscription.getUserId().equals(userId) || !subscription.getPlanId().equals(planId)) {
+                throw new IllegalArgumentException("Payment is already linked to another subscription");
+            }
+            return subscription;
+        }
+        return createSubscriptionInternal(userId, planId, paymentId);
+    }
+    private Subscription createSubscriptionInternal(String userId, String planId, String paymentId) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("User ID is required");
         }
@@ -56,6 +79,7 @@ public class SubscriptionService {
             default -> throw new IllegalArgumentException("Unsupported billing period");
         }
         Subscription subscription = new Subscription(userId, planId, SubscriptionStatus.ACTIVE.name(), now, endDate, now);
+        subscription.setPaymentId(paymentId);
         return subscriptionRepository.save(subscription);
     }
     public void checkUsageLimits(String userId) {

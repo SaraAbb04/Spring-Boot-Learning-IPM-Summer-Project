@@ -12,4 +12,5 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, St
     List<Subscription> findByStatus(String status);
     boolean existsByUserIdAndStatus(String userId, String status);
     List<Subscription> findByUserIdAndStatus(String userId, String status);
+    Optional<Subscription> findByPaymentId(String paymentId);
 }
