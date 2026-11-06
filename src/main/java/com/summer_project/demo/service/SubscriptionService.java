@@ -8,10 +8,12 @@ import com.summer_project.demo.repository.AiUsageRepository;
 import com.summer_project.demo.repository.PlanRepository;
 import com.summer_project.demo.repository.SubscriptionRepository;
 import com.summer_project.demo.repository.UserRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SubscriptionService {
@@ -80,7 +82,20 @@ public class SubscriptionService {
         }
         Subscription subscription = new Subscription(userId, planId, SubscriptionStatus.ACTIVE.name(), now, endDate, now);
         subscription.setPaymentId(paymentId);
-        return subscriptionRepository.save(subscription);
+        try {
+            return subscriptionRepository.save(subscription);
+
+        } catch (DuplicateKeyException duplicateKeyException) {
+            // If this subscription belongs to a payment,
+            // check whether another request has already created it.
+            if (paymentId != null) {
+                Subscription existingSubscription = subscriptionRepository.findByPaymentId(paymentId).orElse(null);
+                if (existingSubscription != null && Objects.equals(existingSubscription.getUserId(), userId) && Objects.equals(existingSubscription.getPlanId(), planId)) {
+                    return existingSubscription;
+                }
+            }
+            throw duplicateKeyException;
+        }
     }
     public void checkUsageLimits(String userId) {
         LocalDateTime now = LocalDateTime.now();

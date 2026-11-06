@@ -112,4 +112,9 @@ public class PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
         return paymentRepository.save(payment);
     }
+    public List<Payment> getProcessingPayments() {
+        return paymentRepository.findByStatus(
+                PaymentStatus.PROCESSING.name()
+        );
+    }
 }
