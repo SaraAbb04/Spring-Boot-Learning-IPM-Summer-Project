@@ -6,10 +6,12 @@ import com.summer_project.demo.gateway.PaymentGateway;
 import com.summer_project.demo.model.Payment;
 import com.summer_project.demo.model.PaymentStatus;
 import com.summer_project.demo.service.PaymentService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/mock-gateway")
+@Profile("dev")
 public class MockGatewayController {
     private final PaymentService paymentService;
     private final PaymentGateway paymentGateway;
