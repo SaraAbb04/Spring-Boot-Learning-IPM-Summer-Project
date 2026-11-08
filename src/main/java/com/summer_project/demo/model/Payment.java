@@ -21,6 +21,8 @@ public class Payment {
     private String transactionId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String gatewayReference;
+    private String redirectUrl;
 
     public String getId() {
         return id;
@@ -92,5 +94,21 @@ public class Payment {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getGatewayReference() {
+        return gatewayReference;
+    }
+
+    public void setGatewayReference(String gatewayReference) {
+        this.gatewayReference = gatewayReference;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 }

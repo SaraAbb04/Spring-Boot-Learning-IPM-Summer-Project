@@ -1,5 +1,8 @@
 package com.summer_project.demo.service;
 
+import com.summer_project.demo.gateway.GatewayPaymentRequest;
+import com.summer_project.demo.gateway.GatewayPaymentResponse;
+import com.summer_project.demo.gateway.PaymentGateway;
 import com.summer_project.demo.model.Payment;
 import com.summer_project.demo.model.PaymentStatus;
 import com.summer_project.demo.model.Plan;
@@ -7,6 +10,7 @@ import com.summer_project.demo.repository.PaymentRepository;
 import com.summer_project.demo.repository.PlanRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,10 +20,14 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PlanRepository planRepository;
     private final SubscriptionService subscriptionService;
-    public PaymentService(PaymentRepository paymentRepository, PlanRepository planRepository, SubscriptionService subscriptionService){
+    private final PaymentGateway paymentGateway;
+    @Value("${payment.callback-url}")
+    private String callbackUrl;
+    public PaymentService(PaymentRepository paymentRepository, PlanRepository planRepository, SubscriptionService subscriptionService, PaymentGateway paymentGateway){
         this.paymentRepository = paymentRepository;
         this.planRepository = planRepository;
         this.subscriptionService = subscriptionService;
+        this.paymentGateway = paymentGateway;
     }
     public Payment createPayment(String userId, String planId) {
         if (userId == null || userId.isBlank()) {
@@ -47,7 +55,18 @@ public class PaymentService {
         payment.setStatus(PaymentStatus.PENDING.name());
         payment.setCreatedAt(now);
         payment.setUpdatedAt(now);
-        return paymentRepository.save(payment);
+        // Step 1: Save payment in database
+        Payment savedPayment = paymentRepository.save(payment);
+        // Step 2: Create gateway request
+        GatewayPaymentRequest gatewayRequest = new GatewayPaymentRequest(savedPayment.getId(), savedPayment.getAmount(), savedPayment.getCurrency(), callbackUrl, "Payment for plan: " + plan.getName());
+        // Step 3: Send request to gateway
+        GatewayPaymentResponse gatewayResponse = paymentGateway.createPayment(gatewayRequest);
+        // Step 4: Save gateway response
+        savedPayment.setGatewayReference(gatewayResponse.gatewayReference());
+        savedPayment.setRedirectUrl(gatewayResponse.redirectUrl());
+        savedPayment.setUpdatedAt(LocalDateTime.now());
+        // Step 5: Return updated payment
+        return paymentRepository.save(savedPayment);
     }
     public List<Payment> getPaymentsByUserId(String userId) {
         return paymentRepository.findByUserId(userId);
