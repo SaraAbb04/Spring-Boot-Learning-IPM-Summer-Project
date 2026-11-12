@@ -43,6 +43,9 @@ public class PaymentService {
         if (plan.getPrice() == null || plan.getPrice().signum() < 0) {
             throw new IllegalArgumentException("Invalid plan price");
         }
+        if (plan.getPrice().signum() == 0) {
+            throw new IllegalArgumentException("Free plans do not require payment");
+        }
         if (plan.getCurrency() == null || plan.getCurrency().isBlank()) {
             throw new IllegalArgumentException("Invalid plan currency");
         }
