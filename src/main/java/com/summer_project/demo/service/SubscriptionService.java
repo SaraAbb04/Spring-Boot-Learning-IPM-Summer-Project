@@ -129,4 +129,40 @@ public class SubscriptionService {
     public List<Subscription> getAllSubscriptions() {
         return subscriptionRepository.findAll();
     }
+    public Subscription activateFreePlan(String userId, String planId) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        if (planId == null || planId.isBlank()) {
+            throw new IllegalArgumentException("Plan ID is required");
+        }
+        // 1. Check user
+        userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // 2. Find the requested plan
+        Plan plan = planRepository.findById(planId).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        // 3. Check plan availability
+        if (!plan.isActive()) {
+            throw new IllegalArgumentException("Plan is not active");
+        }
+        // 4. Make sure this is a free plan
+        if (plan.getPrice() == null || plan.getPrice().signum() != 0) {
+            throw new IllegalArgumentException("This is not a free plan");
+        }
+        // 5. Check existing active subscriptions
+        List<Subscription> activeSubscriptions = subscriptionRepository.findByUserIdAndStatus(userId, SubscriptionStatus.ACTIVE.name());
+        LocalDateTime now = LocalDateTime.now();
+        for (Subscription subscription : activeSubscriptions) {
+            if (subscription.getEndDate() != null && !subscription.getEndDate().isAfter(now)) {
+                subscription.setStatus(SubscriptionStatus.EXPIRED.name());
+                subscriptionRepository.save(subscription);
+            } else {
+                if (planId.equals(subscription.getPlanId())) {
+                    return subscription;
+                }
+                throw new IllegalArgumentException("User already has an active subscription");
+            }
+        }
+        // 6. Create free subscription
+        return createSubscription(userId, planId);
+    }
 }
