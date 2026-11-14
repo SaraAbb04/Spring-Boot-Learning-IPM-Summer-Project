@@ -63,12 +63,22 @@ public class PaymentService {
         // Step 2: Create gateway request
         GatewayPaymentRequest gatewayRequest = new GatewayPaymentRequest(savedPayment.getId(), savedPayment.getAmount(), savedPayment.getCurrency(), callbackUrl, "Payment for plan: " + plan.getName());
         // Step 3: Send request to gateway
-        GatewayPaymentResponse gatewayResponse = paymentGateway.createPayment(gatewayRequest);
-        // Step 4: Save gateway response
+        GatewayPaymentResponse gatewayResponse;
+        try {
+            gatewayResponse = paymentGateway.createPayment(gatewayRequest);
+            if (gatewayResponse == null || gatewayResponse.gatewayReference() == null
+                    || gatewayResponse.redirectUrl() == null) {
+                throw new IllegalStateException("Payment gateway returned an incomplete response");
+            }
+        } catch (RuntimeException exception) {
+            savedPayment.setStatus(PaymentStatus.FAILED.name());
+            savedPayment.setUpdatedAt(LocalDateTime.now());
+            paymentRepository.save(savedPayment);
+            throw new IllegalStateException("Unable to initiate payment with the payment gateway", exception);
+        }
         savedPayment.setGatewayReference(gatewayResponse.gatewayReference());
         savedPayment.setRedirectUrl(gatewayResponse.redirectUrl());
         savedPayment.setUpdatedAt(LocalDateTime.now());
-        // Step 5: Return updated payment
         return paymentRepository.save(savedPayment);
     }
     public List<Payment> getPaymentsByUserId(String userId) {

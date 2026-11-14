@@ -58,6 +58,9 @@ public class TicketService {
     }
     public void deleteTicket(String ticketId, String userEmail){
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket not found!"));
+        if (!ticket.getCreatedBy().equals(userEmail)) {
+            throw new UnauthorizedTicketAccessException("You can't access to this ticket");
+        }
         ticketRepository.delete(ticket);
     }
     public List<Ticket> getAllTickets(){

@@ -1,0 +1,94 @@
+{
+  "info": {
+    "_postman_id": "8c3a43bb-20e5-4c2e-a2db-8e7c36a3c521",
+    "name": "AI Ticket Backend - Finalization Smoke Tests",
+    "description": "Smoke tests for authentication, user/admin authorization, KPI, usage, ticket search and payment management. Configure baseUrl and tokens before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "userToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "conversationId", "value": "" },
+    { "key": "ticketId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "usageId", "value": "" },
+    { "key": "paymentId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register user (use a new email and username)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"postman-user\",\n  \"email\": \"postman-user@example.com\",\n  \"password\": \"test1234\"\n}" },
+            "url": "{{baseUrl}}/users/register"
+          }
+        },
+        {
+          "name": "Login USER (stores userToken)",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 202 || pm.response.code === 200) {", "  const body = pm.response.json();", "  if (body.token) pm.collectionVariables.set('userToken', body.token);", "}", "pm.test('Password is not present in response', function () { pm.expect(pm.response.text()).not.to.include('password'); });"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman-user@example.com\",\n  \"password\": \"test1234\"\n}" },
+            "url": "{{baseUrl}}/users/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "USER access checks",
+      "item": [
+        {
+          "name": "Get own profile",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }], "url": "{{baseUrl}}/users/profile" }
+        },
+        {
+          "name": "USER must be forbidden from Admin endpoints (expect 403)",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }], "url": "{{baseUrl}}/admin/kpi/overview" }
+        },
+        {
+          "name": "Missing token must be unauthorized (expect 401)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/profile" }
+        },
+        {
+          "name": "Get own AI usage",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }], "url": "{{baseUrl}}/usage?page=0&size=10" }
+        }
+      ]
+    },
+    {
+      "name": "ADMIN tests (set adminToken after admin login)",
+      "item": [
+        {
+          "name": "KPI overview",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/kpi/overview" }
+        },
+        {
+          "name": "Admin usage with filters and pagination",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/usage?status=SUCCESS&page=0&size=10" }
+        },
+        {
+          "name": "Admin payment history with pagination",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/payments?page=0&size=10" }
+        },
+        {
+          "name": "Ticket search/filter/sort",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/tickets?page=0&size=10&search=login&sortBy=createdAt&direction=desc" }
+        },
+        {
+          "name": "Invalid ticket sort field (expect 400)",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/tickets?page=0&size=10&sortBy=password&direction=desc" }
+        },
+        {
+          "name": "Invalid page size (expect 400)",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/tickets?page=0&size=101" }
+        }
+      ]
+    }
+  ]
+}

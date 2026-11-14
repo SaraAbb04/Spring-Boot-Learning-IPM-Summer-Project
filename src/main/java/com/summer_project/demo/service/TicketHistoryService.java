@@ -3,7 +3,6 @@ package com.summer_project.demo.service;
 import com.summer_project.demo.model.TicketHistory;
 import com.summer_project.demo.model.TicketStatus;
 import com.summer_project.demo.repository.TicketHistoryRepository;
-import com.summer_project.demo.repository.TicketRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

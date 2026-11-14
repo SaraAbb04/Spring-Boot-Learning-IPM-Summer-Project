@@ -21,6 +21,12 @@ public class MockGatewayController {
     }
     @GetMapping(value = "/pay", produces = "text/html")
     public String showPaymentPage(@RequestParam String paymentId, @RequestParam String reference) {
+        Payment payment = paymentService.getPaymentById(paymentId);
+        if (reference == null || !reference.equals(payment.getGatewayReference())) {
+            throw new IllegalArgumentException("Invalid gateway reference");
+        }
+        String safePaymentId = htmlEscape(paymentId);
+        String safeReference = htmlEscape(reference);
         return """
             <!DOCTYPE html>
             <html>
@@ -51,7 +57,7 @@ public class MockGatewayController {
                 </form>
             </body>
             </html>
-            """.formatted(paymentId, reference, paymentId, reference, paymentId, reference);
+            """.formatted(safePaymentId, safeReference, safePaymentId, safeReference, safePaymentId, safeReference);
     }
     @PostMapping("/result")
     public String processPaymentResult(@RequestParam String paymentId, @RequestParam String reference, @RequestParam String outcome) {
@@ -71,10 +77,21 @@ public class MockGatewayController {
             return "<h1>Payment Successful!</h1>";
         }
         if ("FAILED".equals(outcome)) {
+            if (!reference.startsWith("MOCK-")) {
+                throw new IllegalArgumentException("Invalid mock gateway reference");
+            }
             String transactionId = "MOCK-FAILED-" + reference.substring(5);
             paymentService.updatePaymentStatus(paymentId, PaymentStatus.FAILED, transactionId);
             return "<h1>Payment Failed!</h1>";
         }
         throw new IllegalArgumentException("Invalid payment outcome");
+    }
+
+    private String htmlEscape(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#x27;");
     }
 }

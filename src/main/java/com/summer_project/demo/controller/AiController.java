@@ -1,6 +1,5 @@
 package com.summer_project.demo.controller;
 
-import com.summer_project.demo.ai.AiProvider;
 import com.summer_project.demo.ai.AiService;
 import com.summer_project.demo.ai.dto.ChatRequest;
 import com.summer_project.demo.ai.dto.ChatResponse;

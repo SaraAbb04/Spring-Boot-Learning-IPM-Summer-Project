@@ -3,14 +3,12 @@ package com.summer_project.demo.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
-@CompoundIndexes({})
 public class User {
     @Id
     private String id;
@@ -23,6 +21,7 @@ public class User {
     private String email;
     @NotBlank(message = "Password can't be empty!")
     @Size(min = 4, max = 16, message = "min of password is 4 and max of it is 16")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private Role role;
     public User(){}
