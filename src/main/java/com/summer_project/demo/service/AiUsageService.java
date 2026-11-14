@@ -23,12 +23,14 @@ public class AiUsageService {
         this.userRepository = userRepository;
     }
     public Page<AiUsage> getMyUsage(Authentication authentication, int page, int size) {
+        PaginationValidator.validate(page, size);
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "requestTime")
         );
         return aiUsageRepository.findByUserId(user.getId(), pageable);
     }
     public Page<AiUsage> getMyConversationUsage(Authentication authentication, String conversationId, int page, int size) {
+        PaginationValidator.validate(page, size);
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "requestTime"));
         return aiUsageRepository.findByUserIdAndConversationId(user.getId(), conversationId, pageable);

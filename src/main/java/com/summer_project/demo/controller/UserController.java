@@ -27,13 +27,13 @@ public class UserController {
     }
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public LoginResponse Login(@Valid @RequestBody LoginRequest request){
+    public LoginResponse login(@Valid @RequestBody LoginRequest request){
         User user = userService.Login(request.getEmail(), request.getPassword());
         String token = jwtService.generateToken(user.getEmail(), user.getRole());
         return new LoginResponse(token, user.getEmail(), user.getRole());
     }
     @GetMapping("/profile")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     public UserResponse profile(Authentication authentication){
         String email = authentication.getName();
         User user = userService.getProfile(email);

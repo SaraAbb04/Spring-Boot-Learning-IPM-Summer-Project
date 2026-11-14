@@ -22,6 +22,12 @@ public class ConversationService {
         this.userRepository = userRepository;
     }
     public Conversation createConversation(Authentication authentication, String title, String model) {
+        if (title == null || title.isBlank() || title.length() > 120) {
+            throw new IllegalArgumentException("Conversation title is required and cannot exceed 120 characters");
+        }
+        if (model == null || model.isBlank() || model.length() > 100) {
+            throw new IllegalArgumentException("Model is required and cannot exceed 100 characters");
+        }
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         LocalDateTime now = LocalDateTime.now();
@@ -29,6 +35,7 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
     public Page<Conversation> getMyConversations(Authentication authentication, int page, int size) {
+        PaginationValidator.validate(page, size);
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
