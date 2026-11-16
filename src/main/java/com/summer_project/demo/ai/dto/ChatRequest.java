@@ -4,5 +4,4 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public record ChatRequest(String model, @JsonProperty("messages")List<ChatMessage> messageList) {
-}
+public record ChatRequest(String model, @JsonProperty("messages")List<ChatMessage> messageList) {}

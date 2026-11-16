@@ -114,12 +114,8 @@ public class UserService {
         if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$")) {
             return passwordEncoder.matches(rawPassword, storedPassword);
         }
-        boolean matches = storedPassword.equals(rawPassword);
-        if (matches) {
-            // Upgrade legacy plaintext passwords during password change as well.
-            return true;
-        }
-        return false;
+        // Upgrade legacy plaintext passwords during password change as well.
+        return storedPassword.equals(rawPassword);
     }
 
     public List<UserResponse> getAllUsers() {

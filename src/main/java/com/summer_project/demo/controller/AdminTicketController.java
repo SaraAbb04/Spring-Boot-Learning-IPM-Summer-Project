@@ -29,10 +29,7 @@ public class AdminTicketController {
         this.ticketSearchService = ticketSearchService;
     }
     @GetMapping
-    public Page<Ticket> getAllTickets(@RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "10")int size,
-                                      @RequestParam(required = false)String search, @RequestParam(required = false)TicketStatus status,
-                                      @RequestParam(required = false)TicketPriority priority, @RequestParam(defaultValue = "createdAt")String sortBy,
-                                      @RequestParam(defaultValue = "desc")String direction){
+    public Page<Ticket> getAllTickets(@RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "10")int size, @RequestParam(required = false)String search, @RequestParam(required = false)TicketStatus status, @RequestParam(required = false)TicketPriority priority, @RequestParam(defaultValue = "createdAt")String sortBy, @RequestParam(defaultValue = "desc")String direction){
         return ticketSearchService.searchTicket(page, size, search, status, priority, sortBy, direction);
     }
     @GetMapping("/{id}")
